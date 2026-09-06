@@ -1,0 +1,30 @@
+# Proxy Switch design
+
+## Purpose
+
+A minimal Firefox extension that toggles routing all browser traffic through a SOCKS5 proxy on `localhost:9999`. One toolbar button, one badge, no popup, no options page.
+
+## Approach
+
+Use `browser.proxy.settings` (Firefox's global proxy setting) rather than a `proxy.onRequest` listener. The global setting covers all traffic literally, shows up in Firefox's own Network Settings dialog, needs no host permissions, and `clear()` restores whatever proxy configuration the user had before. The one cost is that `proxy.settings.set()` throws unless the extension is allowed to run in private windows, so the user flips "Run in Private Windows" to Allow once in `about:addons`.
+
+The per-request listener was rejected because it needs an `<all_urls>` host permission, never applies to private windows, and holds the on/off state in the extension instead of in Firefox.
+
+## Files
+
+- `manifest.json`. Manifest V3. Permissions: `proxy` only. A toolbar `action`, a `background.scripts` event page, and a fixed `browser_specific_settings.gecko.id` so the private-window grant, which Firefox stores per add-on ID, survives reloads from `about:debugging`.
+- `background.js`. Toggle and badge logic.
+- `README.md`. Load steps, the one-time private-window grant, and how to confirm it works.
+- No icons. Firefox's default icon plus badge text carries the state.
+
+## Behavior
+
+- **Toggle.** On click, read the current setting with `proxy.settings.get`. If it is already `proxyType: "manual"` with `socks` set to `localhost:9999`, call `clear()`. Otherwise call `set()` with `{ proxyType: "manual", socks: "localhost:9999", socksVersion: 5, proxyDNS: true }`. `proxyDNS` keeps DNS lookups inside the tunnel.
+- **Badge.** After each toggle and whenever the background script loads, re-read the setting and render: green `ON` while active, empty otherwise. Reading the real setting instead of a remembered flag keeps the badge truthful if the user changes the proxy by hand.
+- **Errors.** If `set()` or `clear()` throws (the expected case is the missing private-window grant), show a red `!` badge and put the error message in the button's hover title. No other error handling.
+
+## Install and verify
+
+- Temporary install via `about:debugging` → This Firefox → Load Temporary Add-on → `manifest.json`. The add-on is gone after a Firefox restart; Firefox reverts settings an extension controls when it is removed, so the proxy is off again on next start.
+- Automated check: `npx web-ext lint` on the directory.
+- Manual check: click, confirm `about:preferences` Network Settings shows Manual with SOCKS Host `localhost` port `9999`, SOCKS v5, Proxy DNS on; click again, confirm the previous setting is back.
