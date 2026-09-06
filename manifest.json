@@ -4,8 +4,12 @@
   "version": "1.0.0",
   "description": "Toggle routing all Firefox traffic through a SOCKS5 proxy on localhost:9999.",
   "permissions": ["proxy"],
+  "icons": {
+    "48": "icons/on.svg"
+  },
   "action": {
-    "default_title": "Proxy Switch"
+    "default_title": "Proxy Switch",
+    "default_icon": "icons/off.svg"
   },
   "background": {
     "scripts": ["background.js"]

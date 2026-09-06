@@ -1,6 +1,6 @@
 # Proxy Switch
 
-A minimal Firefox extension. Click the toolbar button to route all Firefox traffic through a SOCKS5 proxy on `localhost:9999`; click again to restore your previous proxy setting. The badge reads **ON** while the proxy is active.
+A minimal Firefox extension. Click the toolbar button to route all Firefox traffic through a SOCKS5 proxy on `localhost:9999`; click again to restore your previous proxy setting. The switch icon shows grey and off, or green and on, to match.
 
 ## Install
 

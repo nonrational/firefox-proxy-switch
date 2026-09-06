@@ -9,8 +9,8 @@ async function isOn() {
 
 async function render() {
   const on = await isOn();
-  await browser.action.setBadgeBackgroundColor({ color: "#2e7d32" });
-  await browser.action.setBadgeText({ text: on ? "ON" : "" });
+  await browser.action.setIcon({ path: on ? "icons/on.svg" : "icons/off.svg" });
+  await browser.action.setBadgeText({ text: "" });
   await browser.action.setTitle({ title: `SOCKS5 ${SOCKS}: ${on ? "on" : "off"}` });
 }
 
@@ -30,7 +30,7 @@ async function toggle() {
 
 // A click wakes the event page, which re-runs this whole script before
 // delivering the click, so the load-time render and the toggle would
-// otherwise race for the badge. One queue keeps them in order.
+// otherwise race for the icon. One queue keeps them in order.
 let queue = Promise.resolve();
 function enqueue(task) {
   queue = queue.then(task).catch(fail);
