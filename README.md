@@ -2,6 +2,9 @@
 
 A minimal Firefox extension. Click the toolbar button to route all Firefox traffic through a SOCKS5 proxy on `localhost:9999`; click again to restore your previous proxy setting. The switch icon shows grey and off, or green and on, to match.
 
+<img width="307" height="71" alt="image" src="https://github.com/user-attachments/assets/a80f0a29-503c-452e-b288-3a2211a85afc" />
+
+
 ## Install
 
 1. Open `about:debugging#/runtime/this-firefox`, click **Load Temporary Add-on…**, and pick `manifest.json` from this directory.
