@@ -12,7 +12,7 @@ The per-request listener was rejected because it needs an `<all_urls>` host perm
 
 ## Files
 
-- `manifest.json`. Manifest V3. Permissions: `proxy` only. A toolbar `action`, a `background.scripts` event page, and a fixed `browser_specific_settings.gecko.id` so the private-window grant, which Firefox stores per add-on ID, survives reloads from `about:debugging`.
+- `manifest.json`. Manifest V3. Permissions: `proxy` only. A toolbar `action`, a `background.scripts` event page, and a fixed `browser_specific_settings.gecko.id` so the private-window grant, which Firefox stores per add-on ID, survives reloads from `about:debugging`. `data_collection_permissions` declares `none`, which is accurate and clears the lint warning AMO would otherwise raise. `strict_min_version` is 142.0: `web-ext lint` requires a minimum version whenever the `proxy` permission is present, and 142 is the first release (desktop and Android) that understands every key in the manifest, so lint reports no warnings.
 - `background.js`. Toggle and badge logic.
 - `README.md`. Load steps, the one-time private-window grant, and how to confirm it works.
 - No icons. Firefox's default icon plus badge text carries the state.
@@ -21,7 +21,8 @@ The per-request listener was rejected because it needs an `<all_urls>` host perm
 
 - **Toggle.** On click, read the current setting with `proxy.settings.get`. If it is already `proxyType: "manual"` with `socks` set to `localhost:9999`, call `clear()`. Otherwise call `set()` with `{ proxyType: "manual", socks: "localhost:9999", socksVersion: 5, proxyDNS: true }`. `proxyDNS` keeps DNS lookups inside the tunnel.
 - **Badge.** After each toggle and whenever the background script loads, re-read the setting and render: green `ON` while active, empty otherwise. Reading the real setting instead of a remembered flag keeps the badge truthful if the user changes the proxy by hand.
-- **Errors.** If `set()` or `clear()` throws (the expected case is the missing private-window grant), show a red `!` badge and put the error message in the button's hover title. No other error handling.
+- **Ordering.** A click wakes the event page, which re-runs the whole script before delivering the click, so the load-time render and the click's toggle run through one promise queue instead of racing for the badge.
+- **Errors.** If `set()` or `clear()` throws (the expected case is the missing private-window grant), or resolves `false` because Firefox did not apply the change (another extension controls the proxy), show a red `!` badge and put the error message in the button's hover title. No other error handling.
 
 ## Install and verify
 
